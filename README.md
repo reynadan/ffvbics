@@ -12,7 +12,7 @@ Retrouvez votre outil au https://reynadan.github.io/ffvbics
 
 Cet outil permet de convertir un lien calendrier de match FFVB vers un calendrier ICS exportable sur n'importe quel agenda (ex : google, outlook)
 
-![Image de présentation](public/assets/images/ffvbtogcal.png?raw=true)
+![Image de présentation](ffvbtogcal.png?raw=true)
 
 ## Exporter votre agenda
 
