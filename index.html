@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/x-icon" href="favicon.ico"/>
+<title>🏐 FFVB ➜ 📅 Agenda</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --border: #e4e7ec;
+    --border-hover: #d0d5dd;
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --accent: #ea580c;
+    --accent-light: #fff7ed;
+    --accent-hover: #c2410c;
+    --ok: #059669;
+    --ok-bg: #ecfdf5;
+    --err: #dc2626;
+    --err-bg: #fef2f2;
+    --warn: #d97706;
+    --warn-bg: #fffbeb;
+    --mono: 'SF Mono', 'Consolas', 'Menlo', monospace;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 16px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.5;
+  }
+  .wrap { width: 100%; max-width: 560px; }
+  .logo-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .logo-wrap img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+  }
+  .header { text-align: center; margin-bottom: 8px; }
+  h1 {
+    font-size: clamp(22px, 5.5vw, 28px);
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 6px 0 28px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .header-actions button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .header-actions button:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+  .header-actions button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+  .card-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-label .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  input[type=text], select, textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: var(--mono);
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  select {
+    font-family: inherit;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+  input[type=text]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(234,88,12,0.08);
+  }
+  input[type=text]::placeholder { color: var(--text-muted); }
+  .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .hint strong { color: var(--text-secondary); }
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .btn-row button { flex: 1 1 auto; min-width: 140px; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: transform 0.06s, background 0.15s, box-shadow 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(234,88,12,0.2);
+  }
+  button:active { transform: scale(0.96); }
+  button:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 16px rgba(234,88,12,0.3);
+  }
+  button:disabled {
+    background: #fdba74;
+    color: #fff;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  button.secondary {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+  button.secondary:hover {
+    border-color: var(--border-hover);
+    background: #f9fafb;
+    box-shadow: none;
+  }
+  button.ghost {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    font-size: 13px;
+    box-shadow: none;
+  }
+  button.ghost:hover { color: var(--accent); background: var(--accent-light); }
+  button.success {
+    background: var(--ok);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(5,150,105,0.2);
+  }
+  button.danger {
+    background: transparent;
+    border: 1.5px solid var(--err);
+    color: var(--err);
+    box-shadow: none;
+  }
+  button.danger:hover { background: var(--err-bg); }
+  .status {
+    font-size: 13px;
+    margin-top: 14px;
+    font-family: var(--mono);
+    white-space: pre-wrap;
+    line-height: 1.5;
+    word-break: break-word;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+  }
+  .status.ok { color: var(--ok); background: var(--ok-bg); border-color: #a7f3d0; }
+  .status.err { color: var(--err); background: var(--err-bg); border-color: #fecaca; }
+  .status.pending { color: var(--text-muted); background: #f9fafb; border-color: var(--border); }
+  .status.warn { color: var(--warn); background: var(--warn-bg); border-color: #fde68a; }
+  .hidden { display: none !important; }
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .saved-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .saved-item:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+  }
+  .saved-item .info { flex: 1; min-width: 0; }
+  .saved-item .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .saved-item .url {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .saved-item .actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .saved-item .actions button {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: unset;
+    border-radius: 8px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+  table.matches {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  table.matches th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 10px 8px;
+    border-bottom: 1.5px solid var(--border);
+    white-space: nowrap;
+  }
+  table.matches td {
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
+  table.matches tr:last-child td { border-bottom: none; }
+  table.matches tr:hover td { background: #f9fafb; }
+  .match-count {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .match-count .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--ok);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .share-box {
+    background: var(--accent-light);
+    border: 1.5px solid #fed7aa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .share-box p {
+    margin: 0 0 10px;
+    color: var(--text-secondary);
+  }
+  .share-url {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .share-url input {
+    flex: 1;
+    font-size: 12px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+  }
+  .share-url button {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    min-width: unset;
+    white-space: nowrap;
+  }
+  details.debug {
+    margin-top: 16px;
+  }
+  details.debug summary {
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 6px 0;
+    user-select: none;
+  }
+  details.debug pre {
+    background: #f3f4f6;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 11px;
+    max-height: 280px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    -webkit-overflow-scrolling: touch;
+    color: var(--text-secondary);
+  }
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(140px);
+    background: var(--text);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    .card { padding: 18px; border-radius: 14px; }
+    .btn-row { flex-direction: column; }
+    .btn-row button { width: 100%; min-width: unset; }
+    .share-url { flex-direction: column; }
+    .share-url button { width: 100%; }
+    .saved-item .url { display: none; }
+    .logo-wrap img { width: 64px; height: 64px; }
+  }
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-wrap">
+    <img src="ffvbtogcal.png" alt="FFVB to ICS" loading="eager">
+  </div>
+  <div class="header"><h1>FFVB &rarr; ICS</h1></div>
+  <p class="subtitle">G&eacute;n&egrave;re un calendrier ICS &agrave; partir de ton calendrier FFVB en 2 clics.</p>
+  <div class="header-actions">
+    <button id="btnToggleDebug" title="Mode avanc&eacute;">&#9881; Mode avanc&eacute;</button>
+  </div>
+
+  <div class="card hidden" id="debugWorkerCard">
+    <div class="card-label"><span class="num">&#9881;</span> Configuration du worker</div>
+    <label for="workerUrl">URL du worker Cloudflare (proxy CORS)</label>
+    <input type="text" id="workerUrl" value="https://ffvb.reynauddaniel26.workers.dev/">
+    <p class="hint">Le worker sert de pont pour contourner les restrictions CORS du site FFVB. Ne modifie cette valeur que si tu h&eacute;berges ton propre worker.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span class="num">1</span> Lien FFVB</div>
+    <label for="ffvbUrl">Colle le lien de ta page calendrier</label>
+    <input type="text" id="ffvbUrl" placeholder="https://www.ffvbbeach.org/ffvbapp/resu/vbspo_calendrier.php?...">
+    <p class="hint">&#128161; <strong>Astuce :</strong> Va <a href="https://www.ffvb.org/front/120-37-1-Championnats-Regionaux">sur le site de la FFVB</a>, trouve la page de ton championnat, copie l&rsquo;URL depuis la barre d&rsquo;adresse, et colle-la ici.</p>
+    <div class="btn-row"><button id="btnLoadTeams">Charger les &eacute;quipes</button></div>
+    <div id="statusStep2" class="status hidden"></div>
+    <details class="debug hidden" id="debugStep2">
+      <summary>Voir le HTML brut re&ccedil;u (debug)</summary>
+      <pre id="debugStep2Content"></pre>
+    </details>
+  </div>
+
+  <div id="favoritesSection" class="hidden">
+    <div class="section-title">&#11088; Calendriers enregistr&eacute;s</div>
+    <div class="saved-list" id="favoritesList"></div>
+  </div>
+
+  <div class="card hidden" id="stepTeam">
+    <div class="card-label"><span class="num">2</span> &Eacute;quipe</div>
+    <label for="teamSelect">Choisis ton &eacute;quipe</label>
+    <select id="teamSelect"></select>
+    <div class="btn-row"><button id="btnLoadMatches">Charger le calendrier</button></div>
+    <div id="statusStep3" class="status hidden"></div>
+    <details class="debug hidden" id="debugStep3">
+      <summary>Voir le HTML brut re&ccedil;u (debug)</summary>
+      <pre id="debugStep3Content"></pre>
+    </details>
+  </div>
+
+  <div class="card hidden" id="stepMatches">
+    <div class="card-label"><span class="num">3</span> Matchs</div>
+    <div class="match-count" id="matchCount"><span class="dot"></span></div>
+    <div class="table-wrap">
+      <table class="matches" id="matchesTable">
+        <thead><tr><th>Date</th><th>Heure</th><th>Domicile</th><th>Ext&eacute;rieur</th><th>Salle</th></tr></thead>
+        <tbody id="matchesBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button id="btnDownloadIcs">&#128229; T&eacute;l&eacute;charger .ics</button>
+      <button id="btnShareFile" class="secondary hidden">&#128228; Partager le fichier</button>
+      <button id="btnShareLink" class="secondary">&#128279; Copier le lien</button>
+    </div>
+    <div style="margin-top:12px;text-align:center;">
+      <button id="btnSaveFavorite" class="ghost">&#11088; Enregistrer ce calendrier</button>
+    </div>
+    <div class="share-box hidden" id="shareBox">
+      <p>Lien direct vers ce calendrier (pr&eacute;-rempli) :</p>
+      <div class="share-url">
+        <input type="text" id="shareUrlInput" readonly>
+        <button id="btnCopyLink" class="secondary">Copier</button>
+      </div>
+    </div>
+  </div>
+  <footer class="pt-5 my-5 text-muted border-top">
+  <p>avec <3 par <a href="https://github.com/reynadan">Daniel Reynaud</a> 2021.
+      <a href="https://creativecommons.org/licenses/by/3.0/">Licence CC 3.0</a> Internet c'est le partage.</p>
+</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let teamsFound = [];
+let matchesFound = [];
+let baseFfvbUrl = "";
+let currentTeamCode = "";
+let currentTeamLabel = "";
+const STORAGE_KEY = "ffvb_favorites_v1";
+
+function setStatus(el, text, kind) {
+  el.textContent = text;
+  el.className = "status " + (kind || "pending");
+  el.classList.remove("hidden");
+}
+function showDebug(detailsEl, contentEl, html) {
+  contentEl.textContent = html;
+  detailsEl.classList.remove("hidden");
+}
+function showToast(msg, duration = 2200) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), duration);
+}
+function setLoading(btn, loading) {
+  if (loading) {
+    btn.disabled = true;
+    if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span> ' + btn.dataset.originalText;
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.originalText || btn.textContent.replace(/\s*.*?spinner.*?\s*/, " ").trim();
+  }
+}
+
+let debugMode = false;
+const btnToggleDebug = document.getElementById("btnToggleDebug");
+const debugWorkerCard = document.getElementById("debugWorkerCard");
+const debugStep2 = document.getElementById("debugStep2");
+const debugStep3 = document.getElementById("debugStep3");
+function updateDebugVisibility() {
+  if (debugMode) {
+    debugWorkerCard.classList.remove("hidden");
+    btnToggleDebug.classList.add("active");
+    btnToggleDebug.textContent = "\u2699 Mode avanc\u00e9 (on)";
+  } else {
+    debugWorkerCard.classList.add("hidden");
+    btnToggleDebug.classList.remove("active");
+    btnToggleDebug.textContent = "\u2699 Mode avanc\u00e9";
+    debugStep2.classList.add("hidden");
+    debugStep3.classList.add("hidden");
+  }
+}
+btnToggleDebug.addEventListener("click", () => {
+  debugMode = !debugMode;
+  updateDebugVisibility();
+});
+
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveFavorites(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+function addFavorite(url, teamCode, teamLabel) {
+  let list = getFavorites().filter(f => !(f.url === url && f.teamCode === teamCode));
+  list.unshift({ url, teamCode, teamLabel, date: Date.now() });
+  if (list.length > 10) list = list.slice(0, 10);
+  saveFavorites(list);
+  renderFavorites();
+}
+function removeFavorite(url, teamCode) {
+  saveFavorites(getFavorites().filter(f => !(f.url === url && f.teamCode === teamCode)));
+  renderFavorites();
+}
+function renderFavorites() {
+  const section = document.getElementById("favoritesSection");
+  const container = document.getElementById("favoritesList");
+  const list = getFavorites();
+  if (list.length === 0) { section.classList.add("hidden"); return; }
+  section.classList.remove("hidden");
+  container.innerHTML = "";
+  list.forEach(fav => {
+    const item = document.createElement("div");
+    item.className = "saved-item";
+    item.innerHTML = `
+      <div class="info">
+        <div class="name">${escapeHtml(fav.teamLabel || "Calendrier")}</div>
+        <div class="url">${escapeHtml(truncate(fav.url, 60))}</div>
+      </div>
+      <div class="actions">
+        <button class="secondary" data-action="use">Utiliser</button>
+        <button class="danger" data-action="delete">&times;</button>
+      </div>`;
+    item.querySelector('[data-action="use"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("ffvbUrl").value = fav.url;
+      loadTeams(fav.url, fav.teamCode);
+    });
+    item.querySelector('[data-action="delete"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeFavorite(fav.url, fav.teamCode);
+    });
+    container.appendChild(item);
+  });
+}
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+function truncate(str, n) {
+  return str.length > n ? str.slice(0, n) + "..." : str;
+}
+
+function getUrlParams() {
+  const p = new URLSearchParams(window.location.search);
+  return { url: p.get("url") || "", equipe: p.get("equipe") || "" };
+}
+function setUrlParams(url, equipe) {
+  const u = new URL(window.location.href);
+  u.searchParams.set("url", url);
+  if (equipe) u.searchParams.set("equipe", equipe);
+  else u.searchParams.delete("equipe");
+  window.history.replaceState({}, "", u.toString());
+}
+function buildShareableUrl(url, equipe) {
+  const u = new URL(window.location.origin + window.location.pathname);
+  u.searchParams.set("url", url);
+  if (equipe) u.searchParams.set("equipe", equipe);
+  return u.toString();
+}
+
+async function fetchViaWorker(targetUrl) {
+  const workerBase = document.getElementById("workerUrl").value.trim();
+  const proxied = workerBase + (workerBase.includes("?") ? "&" : "?") + "url=" + encodeURIComponent(targetUrl);
+  const res = await fetch(proxied);
+  if (!res.ok) throw new Error("Le worker a repondu avec le statut " + res.status);
+  return await res.text();
+}
+
+function cellText(el) {
+  return el.textContent.replace(/\s+/g, " ").trim();
+}
+
+// ===================== REGEX =====================
+const DATE_RE = /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/;
+const TIME_RE = /^\d{1,2}[:h]\d{2}$/;
+const MATCHCODE_RE = /^[A-Z]{2,5}\d{2,6}$/i;
+
+function parseTeams(doc) {
+  const teams = [];
+  const seenCodes = new Set();
+  const cells = Array.from(doc.querySelectorAll("td"));
+
+  for (let i = 1; i < cells.length; i++) {
+    const codeText = cellText(cells[i]);
+    if (!/^\d{1,2}$/.test(codeText)) continue;
+
+    const nameText = cellText(cells[i - 1]);
+    if (!nameText) continue;
+    if (DATE_RE.test(nameText) || TIME_RE.test(nameText) || MATCHCODE_RE.test(nameText)) continue;
+    if (/^\d+$/.test(nameText)) continue;
+    if (nameText.length < 2 || nameText.length > 80) continue;
+
+    const code = codeText.padStart(2, "0");
+    if (seenCodes.has(code)) continue;
+
+    teams.push({ code, name: nameText });
+    seenCodes.add(code);
+  }
+  return teams;
+}
+
+function parseMatches(doc) {
+  const matches = [];
+  const rows = doc.querySelectorAll("tr");
+
+  rows.forEach(row => {
+    const rawCells = Array.from(row.querySelectorAll("td"));
+    const cells = rawCells.map(cellText);
+    const nonEmpty = cells.filter(t => t.length > 0);
+    if (nonEmpty.length < 4) return;
+
+    const dateIdx = cells.findIndex(c => DATE_RE.test(c));
+    if (dateIdx === -1) return;
+
+    let timeIdx = -1;
+    if (dateIdx + 1 < cells.length && TIME_RE.test(cells[dateIdx + 1])) {
+      timeIdx = dateIdx + 1;
+    }
+
+    let codeIdx = cells.findIndex(c => MATCHCODE_RE.test(c));
+
+    let startIdx = timeIdx !== -1 ? timeIdx + 1 : dateIdx + 1;
+    let remaining = cells.slice(startIdx).filter(t => t.length > 0);
+
+    if (remaining.length > 0 && MATCHCODE_RE.test(remaining[0])) {
+      codeIdx = startIdx + cells.slice(startIdx).findIndex(c => c === remaining[0]);
+      remaining = remaining.slice(1);
+    }
+
+    if (remaining.length < 2) return;
+
+    const home = remaining[0];
+    const away = remaining[1];
+    const venue = remaining.slice(2).join(" ") || "";
+
+    matches.push({
+      code: codeIdx !== -1 ? cells[codeIdx] : "",
+      date: cells[dateIdx],
+      time: timeIdx !== -1 ? cells[timeIdx].replace("h", ":") : "",
+      home, away, venue
+    });
+  });
+
+  return matches;
+}
+
+// Nettoie l'URL de base pour qu'elle ne contienne jamais equipe/rech_equipe
+function cleanFfvbUrl(urlStr) {
+  try {
+    const u = new URL(urlStr);
+    u.searchParams.delete("rech_equipe");
+    u.searchParams.delete("equipe");
+    return u.toString();
+  } catch {
+    return urlStr;
+  }
+}
+
+function setTeamParam(urlStr, code) {
+  const u = new URL(urlStr);
+  u.searchParams.delete("rech_equipe");
+  u.searchParams.set("equipe", String(parseInt(code, 10)));
+  return u.toString();
+}
+
+function setRechEquipeParam(urlStr, code) {
+  const u = new URL(urlStr);
+  u.searchParams.delete("equipe");
+  u.searchParams.set("rech_equipe", String(parseInt(code, 10)));
+  return u.toString();
+}
+
+function pad(n) { return String(n).padStart(2, "0"); }
+
+function normalizeName(str) {
+  return String(str).toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function icsEscape(str) {
+  return String(str)
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
+}
+
+function parseFrDate(dateStr, timeStr) {
+  const sep = dateStr.includes("-") ? "-" : "/";
+  const [d, m, yRaw] = dateStr.split(sep).map(s => s.trim());
+  let y = parseInt(yRaw, 10);
+  if (yRaw.length === 2) y += 2000;
+  let hh = 20, mm = 0;
+  if (timeStr) {
+    const parts = timeStr.split(":");
+    hh = parseInt(parts[0], 10);
+    mm = parseInt(parts[1] || "0", 10);
+  }
+  return { y, m: parseInt(m, 10), d: parseInt(d, 10), hh, mm };
+}
+
+function buildIcs(matches, teamLabel) {
+  const now = new Date();
+  const stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate())
+    + "T" + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + "Z";
+  let out = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//ffvbtogcal-front//FR","CALSCALE:GREGORIAN"];
+  matches.forEach(match => {
+    const { y, m, d, hh, mm } = parseFrDate(match.date, match.time);
+    const dtStart = `${y}${pad(m)}${pad(d)}T${pad(hh)}${pad(mm)}00`;
+    const endDate = new Date(y, m - 1, d, hh, mm, 0);
+    endDate.setHours(endDate.getHours() + 2);
+    const dtEnd = `${endDate.getFullYear()}${pad(endDate.getMonth() + 1)}${pad(endDate.getDate())}T${pad(endDate.getHours())}${pad(endDate.getMinutes())}00`;
+    out.push("BEGIN:VEVENT");
+    out.push(`UID:${match.code || (dtStart + "-" + Math.random().toString(36).slice(2))}@ffvbtogcal`);
+    out.push(`DTSTAMP:${stamp}`);
+    out.push(`DTSTART:${dtStart}`);
+    out.push(`DTEND:${dtEnd}`);
+    out.push(`SUMMARY:${icsEscape(match.home + " vs " + match.away)}`);
+    out.push(`LOCATION:${icsEscape(match.venue)}`);
+    out.push(`DESCRIPTION:${icsEscape("Match " + match.code + " - " + teamLabel)}`);
+    out.push("END:VEVENT");
+  });
+  out.push("END:VCALENDAR");
+  return out.join("\r\n");
+}
+
+function makeIcsBlob(icsContent) {
+  return new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+}
+
+function downloadIcs(content, filename) {
+  const blob = makeIcsBlob(content);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function canShareFile() {
+  try {
+    return navigator.canShare && navigator.canShare({ files: [new File([""], "test.ics", { type: "text/calendar" })] });
+  } catch { return false; }
+}
+
+async function shareIcsFile(icsContent, filename) {
+  const blob = makeIcsBlob(icsContent);
+  const file = new File([blob], filename, { type: "text/calendar" });
+  try {
+    await navigator.share({ title: "Calendrier FFVB", text: currentTeamLabel, files: [file] });
+  } catch (err) {
+    if (err.name !== "AbortError") showToast("Erreur de partage : " + err.message);
+  }
+}
+
+function updateShareBox() {
+  const box = document.getElementById("shareBox");
+  const input = document.getElementById("shareUrlInput");
+  if (!baseFfvbUrl || !currentTeamCode) { box.classList.add("hidden"); return; }
+  input.value = buildShareableUrl(baseFfvbUrl, currentTeamCode);
+  box.classList.remove("hidden");
+}
+
+async function loadTeams(url, autoSelectCode = null) {
+  const statusEl = document.getElementById("statusStep2");
+  const debugEl = document.getElementById("debugStep2");
+  const debugContentEl = document.getElementById("debugStep2Content");
+  const btn = document.getElementById("btnLoadTeams");
+
+  if (!url) { setStatus(statusEl, "Colle d'abord un lien FFVB.", "err"); return; }
+  baseFfvbUrl = cleanFfvbUrl(url);
+  setUrlParams(baseFfvbUrl, currentTeamCode);
+
+  setStatus(statusEl, "Chargement des equipes...", "pending");
+  document.getElementById("stepTeam").classList.add("hidden");
+  document.getElementById("stepMatches").classList.add("hidden");
+  setLoading(btn, true);
+
+  try {
+    const html = await fetchViaWorker(url);
+    if (debugMode) showDebug(debugEl, debugContentEl, html);
+
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    teamsFound = parseTeams(doc);
+
+    if (teamsFound.length === 0) {
+      setStatus(statusEl, "Aucune equipe detectee. Active le mode avance pour voir le HTML brut et m'envoyer le resultat.", "err");
+      setLoading(btn, false);
+      return;
+    }
+
+    const select = document.getElementById("teamSelect");
+    select.innerHTML = "";
+    teamsFound.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.code;
+      opt.textContent = `${t.name} (${t.code})`;
+      select.appendChild(opt);
+    });
+
+    setStatus(statusEl, `${teamsFound.length} equipe(s) trouvee(s).`, "ok");
+    if (debugMode) console.log("[DEBUG] Equipes trouvees:", teamsFound.map(t => ({code: t.code, name: t.name})));
+    document.getElementById("stepTeam").classList.remove("hidden");
+
+    if (autoSelectCode) {
+      const found = teamsFound.find(t => t.code === autoSelectCode.padStart(2, "0"));
+      if (found) { select.value = found.code; await loadMatches(found.code); }
+    } else {
+      const params = getUrlParams();
+      if (params.equipe) {
+        const found = teamsFound.find(t => t.code === params.equipe.padStart(2, "0"));
+        if (found) { select.value = found.code; await loadMatches(found.code); }
+      }
+    }
+  } catch (err) {
+    setStatus(statusEl, "Erreur : " + err.message, "err");
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+async function loadMatches(code) {
+  const statusEl = document.getElementById("statusStep3");
+  const debugEl = document.getElementById("debugStep3");
+  const debugContentEl = document.getElementById("debugStep3Content");
+  const btn = document.getElementById("btnLoadMatches");
+
+  console.log("[DEBUG] loadMatches appele avec code:", JSON.stringify(code));
+  if (!code || code === "0" || code === "00") {
+    console.warn("[DEBUG] Code suspect detecte:", code);
+  }
+
+  currentTeamCode = code;
+  const select = document.getElementById("teamSelect");
+  currentTeamLabel = select.options[select.selectedIndex]?.textContent || "Equipe FFVB";
+  setUrlParams(baseFfvbUrl, code);
+
+  setStatus(statusEl, "Chargement du calendrier...", "pending");
+  document.getElementById("stepMatches").classList.add("hidden");
+  setLoading(btn, true);
+
+  let html = "";
+  let teamUrl = "";
+  let triedFallback = false;
+
+  try {
+    // Essai 1 : parametre "equipe"
+    teamUrl = setTeamParam(baseFfvbUrl, code);
+    console.log("[DEBUG] Essai equipe:", teamUrl);
+    html = await fetchViaWorker(teamUrl);
+
+    // Si la page ne contient aucun match, essai 2 : parametre "rech_equipe"
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    let tempMatches = parseMatches(doc);
+    console.log("[DEBUG] Matchs bruts (equipe):", tempMatches.length);
+
+    if (tempMatches.length === 0) {
+      triedFallback = true;
+      teamUrl = setRechEquipeParam(baseFfvbUrl, code);
+      console.log("[DEBUG] Fallback rech_equipe:", teamUrl);
+      html = await fetchViaWorker(teamUrl);
+      doc = new DOMParser().parseFromString(html, "text/html");
+      tempMatches = parseMatches(doc);
+      console.log("[DEBUG] Matchs bruts (rech_equipe):", tempMatches.length);
+    }
+
+    // FILTRAGE COTE CLIENT : le serveur FFVB ignore parfois equipe/rech_equipe
+    const teamInfo = teamsFound.find(t => t.code === code);
+    if (teamInfo && tempMatches.length > 0) {
+      const teamNorm = normalizeName(teamInfo.name);
+      const filtered = tempMatches.filter(m => {
+        return normalizeName(m.home) === teamNorm || normalizeName(m.away) === teamNorm;
+      });
+      if (filtered.length > 0 && filtered.length < tempMatches.length) {
+        console.log(`[DEBUG] Filtre cote client: ${tempMatches.length} -> ${filtered.length} matchs`);
+        tempMatches = filtered;
+      } else if (filtered.length === 0) {
+        console.warn("[DEBUG] Filtre cote client a elimine tous les matchs");
+        console.warn("[DEBUG] Nom equipe attendu:", teamNorm);
+        console.warn("[DEBUG] Exemple domicile:", tempMatches.slice(0,3).map(m => normalizeName(m.home)));
+        console.warn("[DEBUG] Exemple exterieur:", tempMatches.slice(0,3).map(m => normalizeName(m.away)));
+      } else {
+        console.log("[DEBUG] Aucun filtrage necessaire (tous les matchs appartiennent a l'equipe)");
+      }
+    }
+
+    if (debugMode) {
+      showDebug(debugEl, debugContentEl,
+        `URL appelee : ${teamUrl}\n\n` +
+        (triedFallback ? "Fallback utilise (rech_equipe)\n\n" : "Parametre equipe\n\n") +
+        `Matchs apres filtrage: ${tempMatches.length}\n\n` +
+        html
+      );
+    }
+
+    matchesFound = tempMatches;
+
+    if (matchesFound.length === 0) {
+      setStatus(statusEl,
+        "Aucun match detecte sur cette page.\n\n" +
+        "Verifie dans ton navigateur que l'URL FFVB affiche bien un tableau de matchs.\n" +
+        "Si le probleme persiste, active le mode avance et envoie-moi le HTML brut.",
+        "err"
+      );
+      setLoading(btn, false);
+      return;
+    }
+
+    setStatus(statusEl, `${matchesFound.length} match(s) trouve(s).`, "ok");
+
+    const tbody = document.getElementById("matchesBody");
+    tbody.innerHTML = "";
+    matchesFound.forEach(m => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${m.date}</td><td>${m.time || "-"}</td><td>${m.home}</td><td>${m.away}</td><td>${m.venue || "-"}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById("matchCount").innerHTML = `<span class="dot"></span> ${matchesFound.length} match(s) pour ${escapeHtml(currentTeamLabel)}`;
+    document.getElementById("stepMatches").classList.remove("hidden");
+
+    const shareFileBtn = document.getElementById("btnShareFile");
+    if (canShareFile()) shareFileBtn.classList.remove("hidden");
+    updateShareBox();
+  } catch (err) {
+    setStatus(statusEl, "Erreur : " + err.message, "err");
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+document.getElementById("btnLoadTeams").addEventListener("click", async () => {
+  await loadTeams(document.getElementById("ffvbUrl").value.trim());
+});
+document.getElementById("btnLoadMatches").addEventListener("click", async () => {
+  const selectedCode = document.getElementById("teamSelect").value;
+  console.log("[DEBUG] Bouton clique - teamSelect.value:", JSON.stringify(selectedCode));
+  await loadMatches(selectedCode);
+});
+document.getElementById("btnDownloadIcs").addEventListener("click", () => {
+  downloadIcs(buildIcs(matchesFound, currentTeamLabel), "ffvb-calendrier.ics");
+});
+document.getElementById("btnShareFile").addEventListener("click", () => {
+  shareIcsFile(buildIcs(matchesFound, currentTeamLabel), "ffvb-calendrier.ics");
+});
+document.getElementById("btnShareLink").addEventListener("click", () => {
+  updateShareBox();
+  const box = document.getElementById("shareBox");
+  box.classList.remove("hidden");
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+document.getElementById("btnCopyLink").addEventListener("click", async () => {
+  const input = document.getElementById("shareUrlInput");
+  try {
+    await navigator.clipboard.writeText(input.value);
+    showToast("Lien copie dans le presse-papiers !");
+  } catch {
+    input.select();
+    document.execCommand("copy");
+    showToast("Lien copie !");
+  }
+});
+document.getElementById("btnSaveFavorite").addEventListener("click", () => {
+  if (!baseFfvbUrl || !currentTeamCode) return;
+  addFavorite(baseFfvbUrl, currentTeamCode, currentTeamLabel);
+  showToast("Calendrier enregistre !");
+});
+
+(function init() {
+  renderFavorites();
+  const params = getUrlParams();
+  if (params.url) {
+    document.getElementById("ffvbUrl").value = params.url;
+    const autoCode = params.equipe && params.equipe !== "0" && params.equipe !== "00" ? params.equipe : null;
+    setTimeout(() => loadTeams(params.url, autoCode), 300);
+  }
+})();
+</script>
+</body>
+</html>
